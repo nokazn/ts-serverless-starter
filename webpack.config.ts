@@ -47,7 +47,7 @@ const config: Configuration = {
   plugins: [
     new ForkTsCheckerWebpackPlugin({
       eslint: {
-        files: './src/**/*.{t,j}sx?',
+        files: './src/**/*.{t,j}s{,x}',
         enabled: true,
         options: {
           cache: true,
@@ -58,4 +58,4 @@ const config: Configuration = {
 };
 
 // serverless-webpack doesn't support default exports.
-module.exports = { ...config };
+module.exports = config;

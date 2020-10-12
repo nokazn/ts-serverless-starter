@@ -13,6 +13,16 @@ const serverlessConfiguration: Serverless = {
       webpackConfig: './webpack.config.ts',
       includeModules: true,
     },
+    'serverless-iam-roles-per-function': {
+      defaultInjerit: true,
+    },
+    globalTables: {
+      regions: ['us-east-2'],
+    },
+    prune: {
+      automatic: true,
+      number: 3,
+    },
   },
   // Add the serverless-webpack plugin
   plugins: [
@@ -25,12 +35,28 @@ const serverlessConfiguration: Serverless = {
   provider: {
     name: 'aws',
     runtime: 'nodejs12.x',
+    // eslint-disable-next-line no-template-curly-in-string
+    stage: "${opt:state, 'local'}",
+    // eslint-disable-next-line no-template-curly-in-string
+    region: "${opt:region, 'us-east-2'}",
     apiGateway: {
       minimumCompressionSize: 1024,
     },
     environment: {
+      DEBUG: '*',
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     },
+    tracing: {
+      lambda: true,
+      apiGateway: false,
+    },
+    iamRoleStatements: [
+      {
+        Effect: 'Allow',
+        Action: ['xrax:PutTraceSecments', 'xray:PutTelemetryRecords'],
+        Resource: '*',
+      },
+    ],
   },
   functions: {
     hello: {
