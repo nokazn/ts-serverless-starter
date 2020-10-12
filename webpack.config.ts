@@ -1,7 +1,7 @@
 import * as path from 'path';
-import * as slsw from 'serverless-webpack';
+import slsw from 'serverless-webpack';
 import nodeExternals from 'webpack-node-externals';
-import * as ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
+import ForkTsCheckerWebpackPlugin from 'fork-ts-checker-webpack-plugin';
 import type { Configuration } from 'webpack';
 
 const config: Configuration = {
@@ -26,7 +26,14 @@ const config: Configuration = {
       // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
       {
         test: /\.(tsx?)$/,
-        loader: 'ts-loader',
+        use: {
+          loader: 'ts-loader',
+          options: {
+            // fork-ts-checker-webpack-plugin で型チェックする
+            transpileOnly: true,
+            experimentalWatchApi: true,
+          },
+        },
         exclude: [
           [
             path.resolve(__dirname, 'node_modules'),
@@ -34,21 +41,21 @@ const config: Configuration = {
             path.resolve(__dirname, '.webpack'),
           ],
         ],
-        options: {
-          transpileOnly: true,
-          experimentalWatchApi: true,
-        },
       },
     ],
   },
   plugins: [
     new ForkTsCheckerWebpackPlugin({
-      eslint: true,
-      eslintOptions: {
-        cache: true
-      }
-    })
+      eslint: {
+        files: './src/**/*.{t,j}sx?',
+        enabled: true,
+        options: {
+          cache: true,
+        },
+      },
+    }),
   ],
 };
 
-export default config;
+// serverless-webpack doesn't support default exports.
+module.exports = { ...config };
